@@ -10,6 +10,8 @@ A C program that takes a .ppm image and applies a gaussian blur.
 #### To clean up object files and executables:
 `make clean`
 
+#### To run:
+`./blur ../Test/input/in1.ppm ../Test/output/out1.ppm 15 3`
 
 
 ### Example Usage:
