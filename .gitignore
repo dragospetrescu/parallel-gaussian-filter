@@ -1,0 +1,13 @@
+combo/blur
+combo/bin/*
+io/blur
+io/bin/*
+mpi/blur
+mpi/bin/*
+openmp/blur
+openmp/bin/*
+pthreads/blur
+pthreads/bin/*
+serial/blur
+serial/bin/*
+test/output/*
