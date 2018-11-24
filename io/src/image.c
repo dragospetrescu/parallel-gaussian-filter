@@ -5,7 +5,7 @@
 
 IMAGE *image_load(const char *image_name) {
 	// Declare image structure
-	IMAGE *image = (IMAGE*) malloc( sizeof(IMAGE) );
+	image = (IMAGE*) malloc( sizeof(IMAGE) );
 
 	// Open file
 	FILE *file = fopen(image_name, "r");
@@ -32,7 +32,6 @@ IMAGE *image_load(const char *image_name) {
 				   &(image->pixels[i][j].B));
 		}
 		read_lines++;
-
 	}
 	// Close file
 	fclose(file);

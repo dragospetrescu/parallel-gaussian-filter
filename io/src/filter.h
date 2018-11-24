@@ -37,16 +37,16 @@ void filter_print(FILTER *filter);
 void filter_free(FILTER *filter);
 
 // The image that is going to be blurred
-extern IMAGE *image;
+IMAGE *image;
 
 // The resulting image
-extern IMAGE *result;
+IMAGE *result;
 
 // The used filter
-extern FILTER *filter;
+FILTER *filter;
 
-extern int read_lines = 0;
-extern int written_lines = 0;
-extern int filtered_lines = 0;
+int read_lines = 0;
+int written_lines = 0;
+int filtered_lines = 0;
 
 #endif /*FILTER_H*/

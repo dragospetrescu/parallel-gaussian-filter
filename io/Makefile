@@ -16,6 +16,9 @@ bin/main.o: src/main.c
 clean_compile: compile
 	rm -rf bin
 
+clean:
+	rm -rf bin
+
 run: compile
 	./blur ../test/input/in1.ppm ../test/output/out1.ppm 15 3
 
