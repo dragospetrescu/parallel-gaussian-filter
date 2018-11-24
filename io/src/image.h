@@ -3,20 +3,6 @@
 
 #include "filter.h"
 
-typedef struct {
-	unsigned char R;
-	unsigned char G;
-	unsigned char B;
-} pixel;
-
-//.ppm image
-typedef struct {
-	char header[3];
-	int width, height;
-	int color_depth;
-	pixel **pixels;
-} IMAGE;
-
 //Loads an .ppm image from a given file
 IMAGE *image_load(const char *image_name);
 

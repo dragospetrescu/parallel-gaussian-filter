@@ -23,10 +23,17 @@ IMAGE *image_load(const char *image_name) {
 		image->pixels[i] = (pixel*) malloc(image->width * sizeof(pixel));
 
 	// Read pixels
-	for(i = 0; i < image->height; i++)
-		for(j = 0; j < image->width; j++)
-			fscanf(file, "%c%c%c", &(image->pixels[i][j].R), &(image->pixels[i][j].G), &(image->pixels[i][j].B));
+	for(i = 0; i < image->height; i++) {
+		for (j = 0; j < image->width; j++) {
+			fscanf(file,
+				   "%c%c%c",
+				   &(image->pixels[i][j].R),
+				   &(image->pixels[i][j].G),
+				   &(image->pixels[i][j].B));
+		}
+		read_lines++;
 
+	}
 	// Close file
 	fclose(file);
 

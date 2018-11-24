@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include "image.h"
 
+void read() {
+	printf("READING");
+}
+
+void create() {
+	printf("CREATE");
+}
+
+
 int main(int argc, char *argv[]) {
-	// The image that is going to be blurred
-	IMAGE *image = NULL;
-
-	// The resulting image
-	IMAGE *result = NULL;
-
-	// The used filter
-	FILTER *filter;
-
 	// Info
 	char image_file_name[50];
 	char result_file_name[50];
@@ -50,10 +51,19 @@ int main(int argc, char *argv[]) {
 		scanf("%lf", &sigma);
 	}
 
+	pthread_t read_thread, filter_thread;
+
+	pthread_create(&read_thread,NULL, read, NULL);
+	pthread_create(&filter_thread,NULL, create, NULL);
+
+
 	// Load image
 	printf("Loading image...\n");
 	image = image_load(image_file_name);
-	
+
+	pthread_join(read_thread,NULL);
+	pthread_join(filter_thread, NULL);
+
 	// Create filter
 	printf("Creating filter...\n");
 	filter = filter_create_gauss(radius, sigma);
