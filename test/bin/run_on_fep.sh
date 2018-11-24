@@ -2,6 +2,7 @@
 
 cd ~/gaussian-filter
 git reset --hard HEAD
+git checkout $2
 git pull
 
 FOLDER=$1
