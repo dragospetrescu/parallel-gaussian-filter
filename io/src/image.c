@@ -48,13 +48,13 @@ int image_write(const char *file_name) {
 		return 0;
 	
 	// Write image info
-	fprintf(file, "%s\n%d %d\n%d", image->header, image->width, image->height, image->color_depth);
+	fprintf(file, "%s\n%d %d\n%d", result->header, result->width, result->height, result->color_depth);
 
 	// Write pixels
 	int i, j;
-	for(i = 0; i < image->height; i++)
-		for(j = 0; j < image->width; j++)
-			fprintf(file, "%c%c%c", image->pixels[i][j].R, image->pixels[i][j].G, image->pixels[i][j].B);
+	for(i = 0; i < result->height; i++)
+		for(j = 0; j < result->width; j++)
+			fprintf(file, "%c%c%c", result->pixels[i][j].R, result->pixels[i][j].G, result->pixels[i][j].B);
 
 	// Write EOF
 	fprintf(file, "%d", EOF);
