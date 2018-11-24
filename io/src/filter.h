@@ -1,6 +1,7 @@
 #ifndef FILTER_H
 #define FILTER_H
 
+#include <semaphore.h>
 #define PI 3.14159265
 
 typedef enum {
@@ -45,8 +46,6 @@ extern IMAGE *result;
 // The used filter
 extern FILTER *filter;
 
-extern int read_lines;
-extern int written_lines;
-extern int filtered_lines;
+extern sem_t read_semaphore;
 
 #endif /*FILTER_H*/

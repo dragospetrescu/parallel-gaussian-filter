@@ -2,15 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <zconf.h>
+#include <semaphore.h>
 
-IMAGE *image_load(const char *image_name) {
+void image_load(const char *image_name) {
 	// Declare image structure
 	image = (IMAGE*) malloc( sizeof(IMAGE) );
 
 	// Open file
 	FILE *file = fopen(image_name, "r");
 	if(!file)
-		return NULL;
+		return ;
 
 	// Read image info
 	fscanf(file, "%s", image->header);
@@ -31,15 +33,15 @@ IMAGE *image_load(const char *image_name) {
 				   &(image->pixels[i][j].G),
 				   &(image->pixels[i][j].B));
 		}
-		read_lines++;
+		sem_post(&read_semaphore);
 	}
 	// Close file
 	fclose(file);
 
-	return image;
+	return;
 }
 
-int image_write(IMAGE *image, const char *file_name) {
+int image_write(const char *file_name) {
 	// Open file
 	FILE *file = fopen(file_name, "w");
 	if(!file)
@@ -65,21 +67,21 @@ int image_write(IMAGE *image, const char *file_name) {
 
 IMAGE *image_create_blank(IMAGE *source) {
 	// Declare
-	IMAGE *image = (IMAGE*) malloc( sizeof(IMAGE) );
+	IMAGE *empty_image = (IMAGE*) malloc( sizeof(IMAGE) );
 
 	//Copy info(except pixels)
-	strcpy(image->header, source->header);
-	image->height = source->height;
-	image->width = source->width;
-	image->color_depth = source->color_depth;
+	strcpy(empty_image->header, source->header);
+	empty_image->height = source->height;
+	empty_image->width = source->width;
+	empty_image->color_depth = source->color_depth;
 
 	// Allocate memory for pixels
-	image->pixels = (pixel**) malloc(image->height * sizeof(pixel*));
+	empty_image->pixels = (pixel**) malloc(empty_image->height * sizeof(pixel*));
 	int i;
-	for(i = 0; i < image->height; i++)
-		image->pixels[i] = (pixel*) malloc(image->width * sizeof(pixel));
+	for(i = 0; i < empty_image->height; i++)
+		empty_image->pixels[i] = (pixel*) malloc(empty_image->width * sizeof(pixel));
 
-	return image;
+	return empty_image;
 }
 
 void image_free(IMAGE *image) {
@@ -118,13 +120,16 @@ void apply_to_pixel(int x, int y, IMAGE *original, IMAGE *result, FILTER *filter
 	result->pixels[y][x].B = res.B;
 }
 
-IMAGE *apply_filter(IMAGE *original, FILTER *filter) {
-	IMAGE *result = image_create_blank(original);
+void apply_filter() {
+	result = image_create_blank(image);
 
 	int x, y;
-	for(y = 0; y < original->height; y++)
-		for(x = 0; x < original->width; x++)
-			apply_to_pixel(x, y, original, result, filter);
+	for(y = 0; y < image->height; y++) {
 
-	return result;
+		sem_wait(&read_semaphore);
+
+		for (x = 0; x < image->width; x++)
+			apply_to_pixel(x, y, image, result, filter);
+
+	}
 }

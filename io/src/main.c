@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include "image.h"
 
 // The image that is going to be blurred
@@ -13,9 +14,7 @@ IMAGE *result;
 // The used filter
 FILTER *filter;
 
-int read_lines;
-int written_lines;
-int filtered_lines;
+sem_t read_semaphore;
 
 int main(int argc, char *argv[]) {
 	// Info
@@ -55,21 +54,27 @@ int main(int argc, char *argv[]) {
 		scanf("%lf", &sigma);
 	}
 
-	// Load image
-	printf("Loading image...\n");
-	image = image_load(image_file_name);
+	int error = sem_init(&read_semaphore, 0, 0);
+	if(error != 0) {
+		printf("ERROR\n");
+		return 1;
+	}
 
 	// Create filter
 	printf("Creating filter...\n");
 	filter = filter_create_gauss(radius, sigma);
 
+	// Load image
+	printf("Loading image...\n");
+	image_load(image_file_name);
+
 	// Apply filter
 	printf("Appling filter...\n");
-	result = apply_filter(image, filter);
+	apply_filter();
 
 	// Write image to disk
 	printf("Writing image to disk...\n");
-	image_write(result, result_file_name);
+	image_write(result_file_name);
 
 	// Free memory
 	image_free(image);
