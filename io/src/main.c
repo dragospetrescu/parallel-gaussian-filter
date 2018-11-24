@@ -16,6 +16,17 @@ FILTER *filter;
 
 sem_t read_semaphore;
 
+void* func_thread_image_load(void *input) {
+	printf("Loading image... %s\n", (char *)input);
+	image_load((char *)input);
+}
+
+void* func_thread_apply_filter(void *input) {
+	printf("Appling filter...\n");
+	apply_filter();
+}
+
+
 int main(int argc, char *argv[]) {
 	// Info
 	char image_file_name[50];
@@ -64,13 +75,21 @@ int main(int argc, char *argv[]) {
 	printf("Creating filter...\n");
 	filter = filter_create_gauss(radius, sigma);
 
-	// Load image
-	printf("Loading image...\n");
-	image_load(image_file_name);
+	pthread_t load_image_thread;
+	pthread_t apply_filter_thread;
+	pthread_create(&load_image_thread, NULL, func_thread_image_load, image_file_name);
+	pthread_create(&apply_filter_thread, NULL, func_thread_apply_filter, NULL);
 
-	// Apply filter
-	printf("Appling filter...\n");
-	apply_filter();
+	pthread_join(load_image_thread, NULL);
+	pthread_join(apply_filter_thread, NULL);
+
+//	// Load image
+//	printf("Loading image...\n");
+//	image_load(image_file_name);
+//
+//	// Apply filter
+//	printf("Appling filter...\n");
+//	apply_filter();
 
 	// Write image to disk
 	printf("Writing image to disk...\n");

@@ -11,8 +11,9 @@ void image_load(const char *image_name) {
 
 	// Open file
 	FILE *file = fopen(image_name, "r");
-	if(!file)
+	if(!file) {
 		return ;
+	}
 
 	// Read image info
 	fscanf(file, "%s", image->header);
@@ -20,9 +21,16 @@ void image_load(const char *image_name) {
 
 	// Alocate memory for pixels
 	image->pixels = (pixel**) malloc(image->height * sizeof(pixel*));
+
+
+	printf("FINISHED READING INIT\n");
+	sem_post(&read_semaphore);
+
+
 	int i, j;
-	for(i = 0; i < image->height; i++)
+	for(i = 0; i < image->height; i++) {
 		image->pixels[i] = (pixel*) malloc(image->width * sizeof(pixel));
+	}
 
 	// Read pixels
 	for(i = 0; i < image->height; i++) {
@@ -34,6 +42,7 @@ void image_load(const char *image_name) {
 				   &(image->pixels[i][j].B));
 		}
 		sem_post(&read_semaphore);
+//		printf("READ %d\n", i);
 	}
 	// Close file
 	fclose(file);
@@ -121,8 +130,8 @@ void apply_to_pixel(int x, int y, IMAGE *original, IMAGE *result, FILTER *filter
 }
 
 void apply_filter() {
+	sem_wait(&read_semaphore);
 	result = image_create_blank(image);
-
 	int x, y;
 	for(y = 0; y < image->height; y++) {
 
