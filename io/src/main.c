@@ -4,6 +4,19 @@
 #include <pthread.h>
 #include "image.h"
 
+// The image that is going to be blurred
+IMAGE *image;
+
+// The resulting image
+IMAGE *result;
+
+// The used filter
+FILTER *filter;
+
+int read_lines;
+int written_lines;
+int filtered_lines;
+
 int main(int argc, char *argv[]) {
 	// Info
 	char image_file_name[50];
