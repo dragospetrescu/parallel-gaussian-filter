@@ -1,4 +1,5 @@
 #include "image.h"
+#include "filter.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,6 +35,7 @@ void image_load(const char *image_name) {
 
 	// Read pixels
 	for(i = 0; i < image->height; i++) {
+
 		for (j = 0; j < image->width; j++) {
 			fscanf(file,
 				   "%c%c%c",
@@ -41,8 +43,11 @@ void image_load(const char *image_name) {
 				   &(image->pixels[i][j].G),
 				   &(image->pixels[i][j].B));
 		}
+		if(i < filter->radius || i >= 2 * filter->radius)
+			sem_post(&read_semaphore);
+	}
+	for (int k = 0; k < filter->radius; ++k) {
 		sem_post(&read_semaphore);
-//		printf("READ %d\n", i);
 	}
 	// Close file
 	fclose(file);
