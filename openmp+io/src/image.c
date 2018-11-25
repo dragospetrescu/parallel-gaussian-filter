@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <zconf.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <omp.h>
