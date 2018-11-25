@@ -28,7 +28,7 @@ void image_load(const char *image_name) {
 	sem_post(&read_semaphore);
 
 
-	int i, j;
+	int i, j, k;
 	for(i = 0; i < image->height; i++) {
 		image->pixels[i] = (pixel*) malloc(image->width * sizeof(pixel));
 	}
@@ -46,7 +46,7 @@ void image_load(const char *image_name) {
 		if(i < filter->radius || i >= 2 * filter->radius)
 			sem_post(&read_semaphore);
 	}
-	for (int k = 0; k < filter->radius; ++k) {
+	for (k = 0; k < filter->radius; ++k) {
 		sem_post(&read_semaphore);
 	}
 	// Close file
