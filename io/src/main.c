@@ -15,12 +15,18 @@ IMAGE *result;
 FILTER *filter;
 
 sem_t read_semaphore;
-sem_t write_sempaphore;
+sem_t write_semaphore;
 pthread_mutex_t read_initialisation = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t result_initialisation = PTHREAD_MUTEX_INITIALIZER;
 
 void* func_thread_image_load(void *input) {
 	printf("Loading image... %s\n", (char *)input);
 	image_load((char *)input);
+}
+
+void* func_thread_write_result(void *input) {
+	printf("WRITE image... %s\n", (char *)input);
+	image_write((char *)input);
 }
 
 void* func_thread_apply_filter(void *input) {
@@ -72,12 +78,13 @@ int main(int argc, char *argv[]) {
 		printf("ERROR\n");
 		return 1;
 	}
-	error = sem_init(&write_sempaphore, 0, 0);
+	error = sem_init(&write_semaphore, 0, 0);
 	if(error != 0) {
 		printf("ERROR\n");
 		return 1;
 	}
 	pthread_mutex_lock(&read_initialisation);
+	pthread_mutex_lock(&result_initialisation);
 
 	// Create filter
 	printf("Creating filter...\n");
@@ -85,15 +92,15 @@ int main(int argc, char *argv[]) {
 
 	pthread_t load_image_thread;
 	pthread_t apply_filter_thread;
+	pthread_t write_result_thread;
 	pthread_create(&load_image_thread, NULL, func_thread_image_load, image_file_name);
 	pthread_create(&apply_filter_thread, NULL, func_thread_apply_filter, NULL);
+	pthread_create(&write_result_thread, NULL, func_thread_write_result, result_file_name);
 
 	pthread_join(load_image_thread, NULL);
 	pthread_join(apply_filter_thread, NULL);
+	pthread_join(write_result_thread, NULL);
 
-	// Write image to disk
-	printf("Writing image to disk...\n");
-	image_write(result_file_name);
 
 	// Free memory
 	image_free(image);

@@ -55,16 +55,24 @@ int image_write(const char *file_name) {
 	FILE *file = fopen(file_name, "w");
 	if(!file)
 		return 0;
-	
+
+
+	pthread_mutex_lock(&result_initialisation);
 	// Write image info
 	fprintf(file, "%s\n%d %d\n%d", result->header, result->width, result->height, result->color_depth);
 
 	// Write pixels
 	int i, j;
-	for(i = 0; i < result->height; i++)
-		for(j = 0; j < result->width; j++)
-			fprintf(file, "%c%c%c", result->pixels[i][j].R, result->pixels[i][j].G, result->pixels[i][j].B);
+	for(i = 0; i < result->height; i++) {
+		sem_wait(&write_semaphore);
 
+		for (j = 0; j < result->width; j++)
+			fprintf(file,
+					"%c%c%c",
+					result->pixels[i][j].R,
+					result->pixels[i][j].G,
+					result->pixels[i][j].B);
+	}
 	// Write EOF
 	fprintf(file, "%d", EOF);
 
@@ -133,7 +141,7 @@ void apply_filter() {
 	pthread_mutex_lock(&read_initialisation);
 
 	result = image_create_blank(image);
-
+	pthread_mutex_unlock(&result_initialisation);
 
 	int x, y;
 	for(y = 0; y < image->height; y++) {
@@ -142,6 +150,8 @@ void apply_filter() {
 
 		for (x = 0; x < image->width; x++)
 			apply_to_pixel(x, y, image, result, filter);
+
+		sem_post(&write_semaphore);
 
 	}
 }

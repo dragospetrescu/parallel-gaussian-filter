@@ -47,7 +47,8 @@ extern IMAGE *result;
 extern FILTER *filter;
 
 extern sem_t read_semaphore;
-extern sem_t write_sempaphore;
+extern sem_t write_semaphore;
 extern pthread_mutex_t read_initialisation;
+extern pthread_mutex_t result_initialisation;
 
 #endif /*FILTER_H*/
