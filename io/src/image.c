@@ -5,6 +5,7 @@
 #include <string.h>
 #include <zconf.h>
 #include <semaphore.h>
+#include <pthread.h>
 
 void image_load(const char *image_name) {
 	// Declare image structure
@@ -22,11 +23,7 @@ void image_load(const char *image_name) {
 
 	// Alocate memory for pixels
 	image->pixels = (pixel**) malloc(image->height * sizeof(pixel*));
-
-
-	printf("FINISHED READING INIT\n");
-	sem_post(&read_semaphore);
-
+	pthread_mutex_unlock(&read_initialisation);
 
 	int i, j, k;
 	for(i = 0; i < image->height; i++) {
@@ -51,8 +48,6 @@ void image_load(const char *image_name) {
 	}
 	// Close file
 	fclose(file);
-
-	return;
 }
 
 int image_write(const char *file_name) {
@@ -135,8 +130,11 @@ void apply_to_pixel(int x, int y, IMAGE *original, IMAGE *result, FILTER *filter
 }
 
 void apply_filter() {
-	sem_wait(&read_semaphore);
+	pthread_mutex_lock(&read_initialisation);
+
 	result = image_create_blank(image);
+
+
 	int x, y;
 	for(y = 0; y < image->height; y++) {
 
