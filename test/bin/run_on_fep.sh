@@ -2,6 +2,9 @@
 
 cd ~/gaussian-filter
 git reset --hard HEAD
+if [ -n "$2" ]; then
+	git checkout $2
+fi
 git pull
 
 FOLDER=$1
