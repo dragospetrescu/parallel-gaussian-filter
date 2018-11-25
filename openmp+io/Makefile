@@ -1,11 +1,11 @@
 compile: bin bin/image.o bin/filter.o bin/main.o
-	gcc -g bin/image.o bin/filter.o bin/main.o -lm -pthread -oblur
+	gcc -g bin/image.o bin/filter.o bin/main.o -lm -pthread -oblur -fopenmp
 
 bin: 
 	mkdir bin/
 
 bin/image.o: src/image.c
-	gcc -g -pthread -o bin/image.o -c src/image.c
+	gcc -g -pthread -o bin/image.o -c src/image.c -fopenmp
 
 bin/filter.o: src/filter.c
 	gcc -g -pthread -o bin/filter.o -c src/filter.c
