@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <omp.h>
 
 IMAGE *image_load(const char *image_name) {
 	// Declare image structure
@@ -99,6 +100,7 @@ void apply_to_pixel(int x, int y, IMAGE *original, IMAGE *result, FILTER *filter
 	res.R = res.G = res.B = 0;
 	double fil;
 
+	#pragma omp parallel for shared(res)	
 	for(i = -filter->radius; i <= filter->radius; i++) 
 		for(j = -filter->radius; j <= filter->radius; j++) {
 			fil = filter->matrix[i+filter->radius][j+filter->radius];
@@ -116,7 +118,9 @@ IMAGE *apply_filter(IMAGE *original, FILTER *filter) {
 	IMAGE *result = image_create_blank(original);
 
 	int x, y;
+
 	for(y = 0; y < original->height; y++)
+		#pragma omp parallel for
 		for(x = 0; x < original->width; x++)
 			apply_to_pixel(x, y, original, result, filter);
 
