@@ -11,3 +11,10 @@ pthreads/bin/*
 serial/blur
 serial/bin/*
 test/output/*
+.idea/*
+CMakeLists.txt
+cmake-build-debug/*
+openmp+io/blur
+openmp+io/bin/*
+openmp+io/.idea/*
+openmp+io/cmake-build-debug/*
