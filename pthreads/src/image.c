@@ -197,18 +197,17 @@ void *apply_filter_thread_function(void *input)
 
 void apply_filter()
 {
+	int i;
 	pthread_mutex_lock(&read_initialisation);
 
 	result = image_create_blank(image);
 
 	ready_lines = (int *) calloc(image->height, sizeof(int));
 	pthread_mutex_unlock(&result_initialisation);
-//	printf("MERE\n");
 
 	pthread_t apply_filter_threads[NUM_THREADS];
 
-	for (int i = 0; i < NUM_THREADS; ++i) {
-//		printf("START THREAD %d\n", i);
+	for (i = 0; i < NUM_THREADS; ++i) {
 		pthread_t apply_filter_thread;
 		pthread_create(&apply_filter_thread,
 					   NULL,
@@ -218,7 +217,7 @@ void apply_filter()
 
 	}
 
-	for (int i = 0; i < NUM_THREADS; ++i) {
+	for (i = 0; i < NUM_THREADS; ++i) {
 		pthread_join(apply_filter_threads[i], NULL);
 	}
 	sem_post(&write_semaphore);
