@@ -1,9 +1,14 @@
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "image.h"
 
 int main(int argc, char *argv[]) {
+
+	int rank;
+	int nProcesses;
+
 	// The image that is going to be blurred
 	IMAGE *image = NULL;
 
@@ -18,6 +23,12 @@ int main(int argc, char *argv[]) {
 	char result_file_name[50];
 	int radius;
 	double sigma;
+
+	MPI_Init(&argc, &argv);
+	MPI_Status stat;
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &nProcesses);
 
 	// Arguments: argv[0]="path", argv[1]="image_name.ppm", argv[2]="result_image_name.ppm" argv[3]="radius" argv[4]="sigma"
 	if(argc == 5) {	//If enought arguments given take the info from the them
@@ -50,9 +61,11 @@ int main(int argc, char *argv[]) {
 		scanf("%lf", &sigma);
 	}
 
-	// Load image
-	printf("Loading image...\n");
-	image = image_load(image_file_name);
+	if (rank == 0) {
+		// Load image
+		printf("Loading image...\n");
+		image = image_load(image_file_name);
+	}
 	
 	// Create filter
 	printf("Creating filter...\n");
@@ -60,18 +73,23 @@ int main(int argc, char *argv[]) {
 
 	// Apply filter
 	printf("Appling filter...\n");
-	result = apply_filter(image, filter);
+	result = apply_filter(image, filter, rank, nProcesses);
 
-	// Write image to disk
-	printf("Writing image to disk...\n");
-	image_write(result, result_file_name);
+	MPI_Barrier(MPI_COMM_WORLD);
+	if (rank == 0) {
+		// Write image to disk
+		printf("Writing image to disk...\n");
+		image_write(result, result_file_name);
 
-	// Free memory
-	image_free(image);
-	image_free(result);
+		// Free memory
+		image_free(image);
+		image_free(result);
+	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
 	filter_free(filter);
 
 	printf("DONE!\n");
-
+	MPI_Finalize();
 	return 0;
 }

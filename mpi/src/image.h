@@ -30,6 +30,6 @@ IMAGE *image_create_blank(IMAGE *source);
 void image_free(IMAGE *image);
 
 //Apply a filter to the image
-IMAGE *apply_filter(IMAGE *original, FILTER *filter);
+IMAGE *apply_filter(IMAGE *original, FILTER *filter, int rank, int nProcesses);
 
 #endif /*IMAGE_H*/

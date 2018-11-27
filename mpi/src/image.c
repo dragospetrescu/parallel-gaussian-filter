@@ -1,3 +1,4 @@
+#include <mpi.h>
 #include "image.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -112,13 +113,132 @@ void apply_to_pixel(int x, int y, IMAGE *original, IMAGE *result, FILTER *filter
 	result->pixels[y][x].B = res.B;
 }
 
-IMAGE *apply_filter(IMAGE *original, FILTER *filter) {
-	IMAGE *result = image_create_blank(original);
+IMAGE *apply_filter(IMAGE *original, FILTER *filter, int rank, int nProcesses) {
+	int x, y, i;
+	IMAGE *result = NULL; 
+	pixel **pixels = NULL;
+	pixel *pixelsResult = NULL;
+	int currentProc = 1;
+	int shouldReceive = 0;
+	int exit = 0;
+	int width = 0;
 
-	int x, y;
-	for(y = 0; y < original->height; y++)
-		for(x = 0; x < original->width; x++)
-			apply_to_pixel(x, y, original, result, filter);
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	MPI_Datatype mpi_pixel;
+	MPI_Type_contiguous(3, MPI_BYTE, &mpi_pixel);
+  	MPI_Type_commit(&mpi_pixel);
+
+	if (rank == 0) {
+		width = original->width;
+
+		for (i = 1; i < nProcesses; i++) {
+			MPI_Send(&width, 1, MPI_INT, i, 1, MPI_COMM_WORLD);
+		}
+
+		result = image_create_blank(original);
+		for (y = 0; y < filter->radius; y++) {
+			for (x = 0; x < original->width; x++) {
+				result->pixels[y][x] = original->pixels[y][x];
+			}
+		}
+
+		for (y = original->height - filter->radius; y < original->height; y++) {
+			for (x = 0; x < original->width; x++) {
+				result->pixels[y][x] = original->pixels[y][x];
+			}
+		}
+
+		
+		for (y = 0; y < original->height - 2 * filter->radius; y++) {
+
+			MPI_Send(&exit, 1, MPI_INT, currentProc, 2, MPI_COMM_WORLD);
+
+			if (shouldReceive) {
+				MPI_Recv(&result->pixels[filter->radius + y - 3][0], original->width* 3, MPI_BYTE, currentProc, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
+
+			MPI_Send(&original->pixels[y][0], filter->radius*original->width* 3, MPI_BYTE, currentProc, 1, MPI_COMM_WORLD);
+			MPI_Send(&original->pixels[y+filter->radius][0], original->width* 3, MPI_BYTE, currentProc, 1, MPI_COMM_WORLD);
+			MPI_Send(&original->pixels[y+filter->radius+1][0], filter->radius*original->width* 3, MPI_BYTE, currentProc, 1, MPI_COMM_WORLD);
+
+			currentProc++;
+			if (currentProc == nProcesses) {
+				currentProc = 1;
+				shouldReceive = 1;
+			}
+		}
+
+		exit = 1;
+
+		for (currentProc = 1; currentProc < nProcesses; currentProc++) {
+			MPI_Recv(&result->pixels[filter->radius + y - 3][0], (2*filter->radius + 1)*original->width*3, MPI_BYTE, currentProc, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			MPI_Send(&exit, 1, MPI_INT, currentProc, 2, MPI_COMM_WORLD);
+			y++;
+		}
+
+		return result;
+	} else {
+
+		MPI_Recv(&width, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+		pixels = (pixel**) malloc((2*filter->radius + 1) * sizeof(pixel*));
+		for (i = 0; i < (2*filter->radius + 1); i++)
+			pixels[i] = (pixel*) malloc(width * sizeof(pixel));
+
+		pixelsResult = (pixel*) malloc(width * sizeof(pixel));
+
+		int p;
+		MPI_Status stat1;
+
+		while(1) {
+			MPI_Recv(&exit, 1, MPI_INT, 0, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			if (exit == 1) {
+				break;
+			}
+
+			MPI_Status stat;
+			int err;
+
+			MPI_Recv(&pixels[0][0], filter->radius*width*3, MPI_BYTE, 0, 1, MPI_COMM_WORLD, &stat);
+			MPI_Recv(&pixels[filter->radius][0], width*3, MPI_BYTE, 0, 1, MPI_COMM_WORLD, &stat);
+			MPI_Recv(&pixels[filter->radius+1][0], filter->radius*width*3, MPI_BYTE, 0, 1, MPI_COMM_WORLD, &stat);
+
+			MPI_Get_count(&stat, MPI_INT, &err);
+			int i, j;
+
+			double fil;
+			y = filter->radius;
+
+			for (x = 0; x < width; x++) {
+				pixel res;
+				res.R = res.G = res.B = 0;
+
+
+				if (x < filter->radius || x >= width - filter->radius) {
+					pixelsResult[x] = pixels[y][x];
+					continue;
+				}
+
+				for(i = -filter->radius; i <= filter->radius; i++) {
+
+					for(j = -filter->radius; j <= filter->radius; j++) {
+						fil = filter->matrix[i+filter->radius][j+filter->radius];
+						res.R += fil * pixels[y+i][x+j].R;
+						res.G += fil * pixels[y+i][x+j].G;
+						res.B += fil * pixels[y+i][x+j].B;
+					}
+				}
+
+				pixelsResult[x].R = res.R;
+				pixelsResult[x].G = res.G;
+				pixelsResult[x].B = res.B;
+			}
+
+			MPI_Send(pixelsResult, width*3, MPI_BYTE, 0, 1, MPI_COMM_WORLD);
+		}
+
+	}
 
 	return result;
 }
