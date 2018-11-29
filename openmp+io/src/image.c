@@ -145,11 +145,10 @@ void apply_filter() {
 	pthread_mutex_unlock(&result_initialisation);
 
 	int x, y;
-	for(y = 0; y < image->height; y++) {
-
-		sem_wait(&read_semaphore);
-		#pragma omp parallel for
-		for (x = 0; x < image->width; x++)
+	#pragma omp parallel for shared(read_semaphore, image, result, filter, write_semaphore)
+	for (x = 0; x < image->width; x++)
+		for(y = 0; y < image->height; y++) {
+			sem_wait(&read_semaphore);
 			apply_to_pixel(x, y, image, result, filter);
 
 		sem_post(&write_semaphore);
