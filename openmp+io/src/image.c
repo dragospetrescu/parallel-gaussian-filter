@@ -148,7 +148,7 @@ void apply_filter() {
 //	FILE*f = fopen("/home/dragos/log", "w");
 //	fprintf(f, "TOTAL %d\n", image->width);
 
-	#pragma omp parallel for shared(x, f)
+	#pragma omp parallel for shared(x)
 	for (x = 0; x < image->width; x++) {
 //		fprintf(f, "WAIT FOR READ %d\n", x);
 		sem_wait(&read_semaphore);
