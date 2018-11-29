@@ -43,7 +43,7 @@ void image_load(const char *image_name) {
 		if(i < filter->radius || i >= 2 * filter->radius)
 			sem_post(&read_semaphore);
 	}
-	for (k = 0; k < filter->radius; ++k) {
+	for (k = 0; k < filter->radius + 960; ++k) {
 		sem_post(&read_semaphore);
 	}
 	// Close file
@@ -145,13 +145,19 @@ void apply_filter() {
 	pthread_mutex_unlock(&result_initialisation);
 
 	int x, y;
-	#pragma omp parallel for shared(read_semaphore, image, result, filter, write_semaphore)
-	for (x = 0; x < image->width; x++)
+//	FILE*f = fopen("/home/dragos/log", "w");
+//	fprintf(f, "TOTAL %d\n", image->width);
+
+	#pragma omp parallel for shared(x, f)
+	for (x = 0; x < image->width; x++) {
+//		fprintf(f, "WAIT FOR READ %d\n", x);
+		sem_wait(&read_semaphore);
+//		printf("APPLY FILTER %d\n", x);
 		for(y = 0; y < image->height; y++) {
-			sem_wait(&read_semaphore);
 			apply_to_pixel(x, y, image, result, filter);
-
+		}
 		sem_post(&write_semaphore);
-
+//		fprintf(f, "DONE %d\n", x);
 	}
+//	fprintf(f, "DONE\n");
 }
