@@ -7,6 +7,10 @@
 #include <pthread.h>
 #include <omp.h>
 
+int write_pos;
+int *ready_lines;
+
+
 void image_load(const char *image_name) {
 	// Declare image structure
 	image = (IMAGE*) malloc( sizeof(IMAGE) );
@@ -50,28 +54,41 @@ void image_load(const char *image_name) {
 	fclose(file);
 }
 
-int image_write(const char *file_name) {
+int image_write(const char *file_name)
+{
 	// Open file
 	FILE *file = fopen(file_name, "w");
-	if(!file)
+	if (!file)
 		return 0;
 
 
 	pthread_mutex_lock(&result_initialisation);
 	// Write image info
-	fprintf(file, "%s\n%d %d\n%d", result->header, result->width, result->height, result->color_depth);
+	fprintf(file,
+			"%s\n%d %d\n%d",
+			result->header,
+			result->width,
+			result->height,
+			result->color_depth);
 
 	// Write pixels
-	int i, j;
-	for(i = 0; i < result->height; i++) {
+	int j;
+	while (1) {
 		sem_wait(&write_semaphore);
+		if (write_pos >= result->height)
+			break;
 
-		for (j = 0; j < result->width; j++)
-			fprintf(file,
-					"%c%c%c",
-					result->pixels[i][j].R,
-					result->pixels[i][j].G,
-					result->pixels[i][j].B);
+		while (ready_lines[write_pos] == 1) {
+
+			for (j = 0; j < result->width; j++)
+				fprintf(file,
+						"%c%c%c",
+						result->pixels[write_pos][j].R,
+						result->pixels[write_pos][j].G,
+						result->pixels[write_pos][j].B);
+			write_pos++;
+
+		}
 	}
 	// Write EOF
 	fprintf(file, "%d", EOF);
@@ -81,6 +98,7 @@ int image_write(const char *file_name) {
 
 	return 1;
 }
+
 
 IMAGE *image_create_blank(IMAGE *source) {
 	// Declare
@@ -142,13 +160,14 @@ void apply_filter() {
 	pthread_mutex_lock(&read_initialisation);
 
 	result = image_create_blank(image);
+	ready_lines = (int *) calloc(image->height, sizeof(int));
 	pthread_mutex_unlock(&result_initialisation);
 
 	int x, y;
 //	FILE*f = fopen("/home/dragos/log", "w");
 //	fprintf(f, "TOTAL %d\n", image->width);
 
-	#pragma omp parallel for shared(x)
+	#pragma omp parallel for shared(x, result)
 	for (x = 0; x < image->width; x++) {
 //		fprintf(f, "WAIT FOR READ %d\n", x);
 		sem_wait(&read_semaphore);
@@ -156,6 +175,7 @@ void apply_filter() {
 		for(y = 0; y < image->height; y++) {
 			apply_to_pixel(x, y, image, result, filter);
 		}
+		ready_lines[y] = 1;
 		sem_post(&write_semaphore);
 //		fprintf(f, "DONE %d\n", x);
 	}
