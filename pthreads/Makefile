@@ -17,7 +17,7 @@ clean_compile: compile
 	rm -rf bin
 
 clean:
-	rm -rf bin
+	rm -rf bin blur
 
 run: compile
 	./blur ../test/input/in1.ppm ../test/output/out1.ppm 15 3

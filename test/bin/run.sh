@@ -6,7 +6,7 @@ cd
 if [ $1 = "openmp+io" ]; then
    export OMP_NUM_THREADS=$2
 else
-    sed -i "s/#define NUM_THREADS [0-9.]\+/#define NUM_THREADS ${2}/"  gaussian-filter/pthreads/src/filter.h
+    sed -i "s/#define NUM_THREADS [0-9.]\+/#define NUM_THREADS ${2}/" gaussian-filter/pthreads/src/filter.h
     make -C gaussian-filter/pthreads
 fi
 
