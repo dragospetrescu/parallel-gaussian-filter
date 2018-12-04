@@ -12,4 +12,4 @@ else
 
 fi
 
-collect -p hi ./gaussian-filter/$1/blur gaussian-filter/test/input/in1.ppm gaussian-filter/test/output/out1.ppm 15 3
+collect -p hi ./gaussian-filter/$1/blur gaussian-filter/test/input/in2.ppm gaussian-filter/test/output/out2.ppm 15 3
