@@ -2,6 +2,7 @@
 
 
 module load compilers/solarisstudio-12.5
+module load libraries/openmpi-2.0.1-gcc-5.4.0
 cd
 if [ $1 = "openmp+io" ]; then
    export OMP_NUM_THREADS=$2
