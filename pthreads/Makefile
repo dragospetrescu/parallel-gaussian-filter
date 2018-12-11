@@ -1,17 +1,19 @@
+CC=cc
+
 compile: bin bin/image.o bin/filter.o bin/main.o
-	gcc -g bin/image.o bin/filter.o bin/main.o -lm -pthread -oblur
+	$(CC) -g bin/image.o bin/filter.o bin/main.o -lm -lpthread -oblur
 
 bin: 
 	mkdir bin/
 
 bin/image.o: src/image.c
-	gcc -g -pthread -o bin/image.o -c src/image.c
+	$(CC) -g -lpthread -o bin/image.o -c src/image.c
 
 bin/filter.o: src/filter.c
-	gcc -g -pthread -o bin/filter.o -c src/filter.c
+	$(CC) -g -lpthread -o bin/filter.o -c src/filter.c
 
 bin/main.o: src/main.c
-	gcc -g -pthread -o bin/main.o -c src/main.c
+	$(CC) -g -lpthread -o bin/main.o -c src/main.c
 
 clean_compile: compile
 	rm -rf bin
