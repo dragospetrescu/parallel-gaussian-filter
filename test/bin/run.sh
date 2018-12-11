@@ -6,11 +6,10 @@ module load libraries/openmpi-2.0.1-gcc-5.4.0
 cd
 if [ $1 = "openmp+io" ]; then
    export OMP_NUM_THREADS=$2
-else if [ $1 = "pthreads" ]; then
+elif [ $1 = "pthreads" ]; then
     sed -i "s/#define NUM_THREADS [0-9.]\+/#define NUM_THREADS ${2}/" gaussian-filter/pthreads/src/filter.h
     make -C gaussian-filter/pthreads clean
     make -C gaussian-filter/pthreads
-
 fi
 
 
