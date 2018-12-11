@@ -8,7 +8,7 @@ fi
 git pull
 
 FOLDER=$1
-
+module load libraries/openmpi-2.0.1-gcc-5.4.0
 cd $FOLDER
 make compile
 
