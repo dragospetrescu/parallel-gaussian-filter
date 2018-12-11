@@ -4,7 +4,7 @@
 module load compilers/solarisstudio-12.5
 module load libraries/openmpi-2.0.1-gcc-5.4.0
 cd
-if [ $1 = "openmp+io" ]; then
+if [ $1 = "openmp" ] || [ $1 = "openmp+io" ]; then
    export OMP_NUM_THREADS=$2
 elif [ $1 = "pthreads" ]; then
     sed -i "s/#define NUM_THREADS [0-9.]\+/#define NUM_THREADS ${2}/" gaussian-filter/pthreads/src/filter.h
