@@ -18,7 +18,7 @@ mkdir ~/gaussian-filter/test/output/ &> /dev/null
 #qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 4
 #qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 8
 #qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 16
-qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q hp-sl.q ~/gaussian-filter/test/bin/run.sh $FOLDER 32
+qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q hp-sl.q ~/gaussian-filter/test/bin/run.sh $FOLDER 8
 
 
 #diff ../test/output/out1.ppm ../test/ref/ref1.ppm
