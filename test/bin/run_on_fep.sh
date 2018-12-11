@@ -13,11 +13,11 @@ cd $FOLDER
 make compile
 
 mkdir ~/gaussian-filter/test/output/ &> /dev/null
-qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 1
-qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 2
-qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 4
-qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 8
-qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 16
+#qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 1
+#qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 2
+#qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 4
+#qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 8
+#qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 16
 qsub -sync y -o ~/gaussian-filter/test/output/out1.o -e ~/gaussian-filter/test/output/out1.e -q ibm-dp.q ~/gaussian-filter/test/bin/run.sh $FOLDER 24
 
 
