@@ -1,6 +1,5 @@
 # Parallel Gaussian Blurring
-[![AUR](https://img.shields.io/aur/license/yaourt.svg)](https://github.com/estradjm/Parallel-Gaussian-Blurring/blob/master/LICENSE.md) 
-
+Took project https://github.com/estradjm/Parallel-Gaussian-Blurring and parallelized it using openmp, mpi and threads.
 
 A C program that takes a .ppm image and applies a gaussian blur.
 
